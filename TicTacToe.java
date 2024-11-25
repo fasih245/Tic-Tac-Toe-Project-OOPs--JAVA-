@@ -1,116 +1,130 @@
-import java.util.Random;
-import java.util.Scanner;
+// Importing utilities
+import java.util.Random; // Used for generating random moves by the computer
+import java.util.Scanner; // For user input
 
-class Board {
-    private char[][] grid = new char[3][3];
-
-    public Board() {
+// Class representing the game board
+class Board { 
+    // Encapsulation: Grid is private to prevent direct access
+    private char[][] grid = new char[3][3]; // 2D Grid for the Tic-Tac-Toe board
+    
+    // Constructor: Initializes the board
+    public Board() { 
         // Initialize the grid with empty spaces
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                grid[i][j] = ' ';
+        for (int i = 0; i < 3; i++) { // Nested loop to initialize the board
+             for (int j = 0; j < 3; j++) {
+                grid[i][j] = ' '; // Empty spaces indicate unoccupied cells
             }
         }
     }
 
+    // Method to display the board (Abstraction: hides details of board representation)
     public void displayBoard() {
         System.out.println("Current Board:");
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 System.out.print(" " + grid[i][j]);
-                if (j < 2) System.out.print(" |");
+                if (j < 2) System.out.print(" |"); // Adds separator between columns
             }
             System.out.println();
-            if (i < 2) System.out.println("---+---+---");
+            if (i < 2) System.out.println("---+---+---"); // Adds separator between rows
         }
     }
 
+    // Encapsulation: Method to safely place a marker on the board
     public boolean placeMarker(int row, int col, char symbol) {
         if (row >= 0 && row < 3 && col >= 0 && col < 3 && grid[row][col] == ' ') {
-            grid[row][col] = symbol;
-            return true;
+            grid[row][col] = symbol; // Place marker
+            return true; // Valid move
         }
-        return false;
+        return false; // Invalid move
     }
 
+    // Method to check if a player has won (Abstraction of win condition logic)
     public boolean checkWin(char symbol) {
         // Check rows, columns, and diagonals for a win
         for (int i = 0; i < 3; i++) {
-            if (grid[i][0] == symbol && grid[i][1] == symbol && grid[i][2] == symbol) return true;
-            if (grid[0][i] == symbol && grid[1][i] == symbol && grid[2][i] == symbol) return true;
+            if (grid[i][0] == symbol && grid[i][1] == symbol && grid[i][2] == symbol) return true; // Row
+            if (grid[0][i] == symbol && grid[1][i] == symbol && grid[2][i] == symbol) return true; // Column
         }
-        if (grid[0][0] == symbol && grid[1][1] == symbol && grid[2][2] == symbol) return true;
-        if (grid[0][2] == symbol && grid[1][1] == symbol && grid[2][0] == symbol) return true;
-        return false;
+        if (grid[0][0] == symbol && grid[1][1] == symbol && grid[2][2] == symbol) return true; // Main diagonal
+        if (grid[0][2] == symbol && grid[1][1] == symbol && grid[2][0] == symbol) return true; // Anti-diagonal
+        return false; // No win
     }
 
+    // Encapsulation: Checks if the board is full (no empty cells)
     public boolean isFull() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                if (grid[i][j] == ' ') return false;
+                if (grid[i][j] == ' ') return false; // Found an empty cell
             }
         }
-        return true;
+        return true; // Board is full
     }
 
-    // New method to access a specific cell
+    // Encapsulation: Safely retrieves the value of a specific cell
     public char getCell(int row, int col) {
         return grid[row][col];
     }
 }
 
+// Class representing a Player (Encapsulation: symbol is private)
 class Player {
-    private char symbol;
+    private char symbol; // Each player has a unique symbol (e.g., 'X' or 'O')
 
+    // Constructor to initialize a player with a specific symbol
     public Player(char symbol) {
         this.symbol = symbol;
     }
 
+    // Getter to access the player's symbol
     public char getSymbol() {
         return symbol;
     }
 }
 
+// Main class implementing the game
 public class TicTacToe {
-    private Board board;
-    private Player user;
-    private Player computer;
-    private Player currentPlayer;
-    private Random random;
+    private Board board; // Composition: Board is part of the game
+    private Player user; // User player
+    private Player computer; // Computer player
+    private Player currentPlayer; // Tracks whose turn it is
+    private Random random; // For generating computer moves
 
-    public TicTacToe() {
-        board = new Board();
-        user = new Player('X');
-        computer = new Player('O');
+    // Constructor initializes the game components
+    public TicTacToe() { 
+        board = new Board(); // Create a new game board
+        user = new Player('X'); // User plays as 'X'
+        computer = new Player('O'); // Computer plays as 'O'
         currentPlayer = user; // User starts first
-        random = new Random();
+        random = new Random(); // Initialize random generator
     }
 
-    public void startGame() {
+    // Polymorphism: Method Overloading
+    public void startGame() { 
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            board.displayBoard();
+            board.displayBoard(); // Show current board
 
             if (currentPlayer == user) {
                 // User's turn
                 System.out.println("Your turn (Player X). Enter row and column (1-3): ");
-                int row = scanner.nextInt() - 1;
+                int row = scanner.nextInt() - 1; // Input adjusted to 0-based indexing
                 int col = scanner.nextInt() - 1;
 
-                if (board.placeMarker(row, col, user.getSymbol())) {
-                    if (board.checkWin(user.getSymbol())) {
+                if (board.placeMarker(row, col, user.getSymbol())) { // Encapsulation: placeMarker
+                    if (board.checkWin(user.getSymbol())) { // Check win condition
                         board.displayBoard();
                         System.out.println("You win!");
                         break;
-                    } else if (board.isFull()) {
+                    } else if (board.isFull()) { // Check for draw
                         board.displayBoard();
                         System.out.println("It's a draw!");
                         break;
                     }
                     currentPlayer = computer; // Switch to computer
                 } else {
-                    System.out.println("Invalid move. Try again.");
+                    System.out.println("Invalid move. Try again."); // Invalid move
                 }
             } else {
                 // Computer's turn
@@ -123,13 +137,13 @@ public class TicTacToe {
                     col = random.nextInt(3);
                 } while (board.getCell(row, col) != ' '); // Ensure the cell is empty
 
-                board.placeMarker(row, col, computer.getSymbol());
+                board.placeMarker(row, col, computer.getSymbol()); // Encapsulation
 
-                if (board.checkWin(computer.getSymbol())) {
+                if (board.checkWin(computer.getSymbol())) { // Check win condition
                     board.displayBoard();
                     System.out.println("Computer wins!");
                     break;
-                } else if (board.isFull()) {
+                } else if (board.isFull()) { // Check for draw
                     board.displayBoard();
                     System.out.println("It's a draw!");
                     break;
@@ -142,7 +156,8 @@ public class TicTacToe {
     }
 
     public static void main(String[] args) {
-        TicTacToe game = new TicTacToe();
-        game.startGame();
+        // Create and start a new game
+        TicTacToe game = new TicTacToe(); // Object creation (Classes and Objects)
+        game.startGame(); // Start the game
     }
 }
